@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TOP HUAMBO</title>
+    <style>
+        body { font-family: Arial, sans-serif; background: #121212; color: white; margin: 0; padding: 0; }
+        .topo { background: #8e44ad; padding: 20px; text-align: center; }
+        .topo h1 { margin: 0; color: white; }
+        .topo p { margin: 5px 0 0; color: #ddd; }
+        .conteudo { padding: 15px; }
+        .card { background: #222; padding: 15px; border-radius: 10px; margin-bottom: 15px; border-left: 5px solid #8e44ad; }
+        .btn { background: #2ecc71; color: #121212; padding: 15px; border: none; border-radius: 5px; width: 100%; font-size: 16px; font-weight: bold; cursor: pointer; margin-top: 10px; }
+        select, input { width: 100%; padding: 10px; margin: 5px 0; border: 1px solid #444; background: #333; color: white; border-radius: 5px; box-sizing: border-box; }
+        label { display: block; margin-top: 10px; color: #8e44ad; font-weight: bold; }
+        .escondido { display: none; }
+    </style>
+</head>
+<body>
+
+    <div class="topo">
+        <h1>✂️ TOP HUAMBO</h1>
+        <p>Beleza ao Domicílio</p>
+    </div>
+
+    <div class="conteudo">
+        <div id="formulario" class="card">
+            <h2>Fazer Marcação</h2>
+            
+            <label>Escolha o Serviço:</label>
+            <select id="servico"><option value="">Carregando...</option></select>
+
+            <label>Escolha o Profissional:</label>
+            <select id="profissional"><option value="">Carregando...</option></select>
+
+            <label>Data:</label>
+            <input type="date" id="data">
+
+            <label>Hora:</label>
+            <input type="time" id="hora">
+
+            <label>Seu Nome:</label>
+            <input type="text" id="nome" placeholder="Nome completo">
+
+            <label>Telefone:</label>
+            <input type="tel" id="telefone" placeholder="955 000 000">
+
+            <label>Rua / Bairro (Endereço):</label>
+            <input type="text" id="endereco" placeholder="Ex: Bairro São João, Rua 4">
+
+            <div style="background: #333; padding: 15px; border-radius: 5px; margin-top: 15px; display: flex; justify-content: space-between;">
+                <span>Total:</span>
+                <span id="total" style="color: #2ecc71; font-weight: bold;">0 Kz</span>
+            </div>
+
+            <button class="btn" onclick="confirmar()">CONFIRMAR MARCAÇÃO</button>
+        </div>
+
+        <div id="sucesso" class="card escondido" style="text-align: center; border-left: 5px solid #2ecc71;">
+            <h2 style="color: #2ecc71;">✅ Sucesso!</h2>
+            <p>A sua marcação foi enviada. Aguarde a confirmação.</p>
+            <button class="btn" onclick="location.reload()">Fazer Outra Marcação</button>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getDatabase, ref, onValue, push, set } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyBfTQkL3syaM-KJZ3NK4YiSfpWFbkdkZWI",
+            authDomain: "top-huambo.firebaseapp.com",
+            databaseURL: "https://top-huambo-default-rtdb.firebaseio.com",
+            projectId: "top-huambo",
+            storageBucket: "top-huambo.firebasestorage.app",
+            messagingSenderId: "1082034373007",
+            appId: "1:1082034373007:web:ede1bc60ee781589348bfa"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+        let taxa = 400;
+
+        onValue(ref(db, 'configuracoes/taxa_fixa'), (snap) => {
+            if (snap.exists()) taxa = snap.val();
+        });
+
+        const selServico = document.getElementById('servico');
+        onValue(ref(db, 'servicos'), (snap) => {
+            selServico.innerHTML = '<option value="">Escolha um serviço</option>';
+            snap.forEach((child) => {
+                const s = child.val();
+                if (s.ativo) {
+                    selServico.innerHTML += `<option value="${s.nome}" data-preco="${s.preco}">${s.nome} - ${s.preco} Kz</option>`;
+                }
+            });
+        });
+
+        const selProf = document.getElementById('profissional');
+        onValue(ref(db, 'profissionais'), (snap) => {
+            selProf.innerHTML = '<option value="">Escolha um profissional</option>';
+            snap.forEach((child) => {
+                const p = child.val();
+                if (p.ativo) {
+                    selProf.innerHTML += `<option value="${p.nome}">${p.nome}</option>`;
+                }
+            });
+        });
+
+        selServico.addEventListener('change', () => {
+            const preco = selServico.options[selServico.selectedIndex]?.dataset.preco || 0;
+            document.getElementById('total').innerText = (parseInt(preco) + taxa) + " Kz";
+        });
+
+        window.confirmar = function() {
+            const servico = selServico.value;
+            const profissional = selProf.value;
+            const data = document.getElementById('data').value;
+            const hora = document.getElementById('hora').value;
+            const nome = document.getElementById('nome').value;
+            const telefone = document.getElementById('telefone').value;
+            const endereco = document.getElementById('endereco').value;
+            const total = parseInt(document.getElementById('total').innerText.replace(" Kz", ""));
+
+            if (!servico || !profissional || !data || !hora || !nome || !telefone || !endereco) {
+                alert("Por favor, preencha todos os campos!");
+                return;
+            }
+
+            onValue(ref(db, 'marcacoes'), (snap) => {
+                let ocupado = false;
+                snap.forEach((child) => {
+                    const m = child.val();
+                    if (m.profissional === profissional && m.data === data && m.hora === hora && m.status !== 'cancelada') {
+                        ocupado = true;
+                    }
+                });
+
+                if (ocupado) {
+                    alert("❌ Este horário já está ocupado para este profissional. Escolha outro.");
+                    return;
+                }
+
+                set(push(ref(db, 'marcacoes')), {
+                    cliente: nome,
+                    telefone: telefone,
+                    endereco: endereco,
+                    servico: servico,
+                    profissional: profissional,
+                    data: data,
+                    hora: hora,
+                    total: total,
+                    status: "pendente"
+                }).then(() => {
+                    document.getElementById('formulario').classList.add('escondido');
+                    document.getElementById('sucesso').classList.remove('escondido');
+                }).catch((err) => alert("Erro: " + err.message));
+            }, { onlyOnce: true });
+        };
+    </script>
+</body>
+      </html>
