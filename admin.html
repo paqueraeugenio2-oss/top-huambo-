@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TOP HUAMBO - Admin</title>
+    <style>
+        body { font-family: Arial, sans-serif; background: #f0f0f0; margin: 0; padding: 15px; }
+        .card { background: white; padding: 15px; border-radius: 10px; margin-bottom: 15px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        h1, h2 { color: #8e44ad; text-align: center; }
+        .btn { background: #8e44ad; color: white; padding: 10px; border: none; border-radius: 5px; width: 100%; font-size: 16px; cursor: pointer; margin-top: 10px; }
+        .btn-verde { background: #2ecc71; color: #000; }
+        .btn-vermelho { background: #e74c3c; color: white; }
+        .btn-cinza { background: #7f8c8d; color: white; margin-top: 5px; font-size: 14px; }
+        input { width: 100%; padding: 10px; margin: 5px 0; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; }
+        .item { background: #eee; padding: 10px; border-radius: 5px; margin-bottom: 10px; border-left: 5px solid #8e44ad; }
+        .item p { margin: 3px 0; font-size: 14px; }
+        .tabs { display: flex; gap: 5px; margin-bottom: 15px; }
+        .tab-btn { flex: 1; padding: 10px; border: none; border-radius: 5px; background: #ddd; font-weight: bold; cursor: pointer; }
+        .tab-btn.active { background: #8e44ad; color: white; }
+        .escondido { display: none; }
+    </style>
+</head>
+<body>
+
+    <div id="tela-login" class="card">
+        <h1>TOP HUAMBO ADMIN</h1>
+        <input type="password" id="senha" placeholder="Digite a senha">
+        <button class="btn" onclick="fazerLogin()">ENTRAR</button>
+    </div>
+
+    <div id="painel" class="escondido">
+        <h1>Painel Admin</h1>
+        
+        <div class="tabs">
+            <button class="tab-btn active" onclick="mudarAba('marcacoes', this)">📋 Marcações</button>
+            <button class="tab-btn" onclick="mudarAba('servicos', this)">💰 Preços</button>
+            <button class="tab-btn" onclick="mudarAba('equipe', this)">👥 Equipe</button>
+        </div>
+
+        <div id="aba-marcacoes">
+            <div class="card">
+                <h2>Resumo</h2>
+                <p>Pendentes: <strong id="num-pendentes">0</strong></p>
+                <p>Confirmadas: <strong id="num-confirmadas">0</strong></p>
+                <p>Ganhos: <strong id="num-ganhos">0 Kz</strong></p>
+            </div>
+            <div class="card">
+                <h2>Lista de Marcações</h2>
+                <div id="lista-marcacoes">Carregando...</div>
+            </div>
+        </div>
+
+        <div id="aba-servicos" class="escondido">
+            <div class="card">
+                <h2>Alterar Preços</h2>
+                <div id="lista-servicos">Carregando...</div>
+            </div>
+        </div>
+
+        <div id="aba-equipe" class="escondido">
+            <div class="card">
+                <h2>Adicionar Profissional</h2>
+                <input type="text" id="novo-prof" placeholder="Nome do profissional">
+                <button class="btn btn-verde" onclick="adicionarProf()">Adicionar</button>
+            </div>
+            <div class="card">
+                <h2>Equipe Atual</h2>
+                <div id="lista-equipe">Carregando...</div>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getDatabase, ref, onValue, update, remove, push, set } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyBfTQkL3syaM-KJZ3NK4YiSfpWFbkdkZWI",
+            authDomain: "top-huambo.firebaseapp.com",
+            databaseURL: "https://top-huambo-default-rtdb.firebaseio.com",
+            projectId: "top-huambo",
+            storageBucket: "top-huambo.firebasestorage.app",
+            messagingSenderId: "1082034373007",
+            appId: "1:1082034373007:web:ede1bc60ee781589348bfa"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+
+        window.fazerLogin = function() {
+            // ⚠️ Se você mudou a senha, altere aqui dentro das aspas:
+            if (document.getElementById('senha').value === "topadmin") {
+                document.getElementById('tela-login').classList.add('escondido');
+                document.getElementById('painel').classList.remove('escondido');
+                carregarTudo();
+            } else {
+                alert("Senha errada!");
+            }
+        };
+
+        window.mudarAba = function(aba, btn) {
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            document.querySelectorAll('#painel > div').forEach(d => d.classList.add('escondido'));
+            document.getElementById('aba-' + aba).classList.remove('escondido');
+        };
+
+        function carregarTudo() {
+            carregarMarcacoes();
+            carregarServicos();
+            carregarEquipe();
+        }
+
+        function carregarMarcacoes() {
+            const div = document.getElementById('lista-marcacoes');
+            onValue(ref(db, 'marcacoes'), (snapshot) => {
+                div.innerHTML = '';
+                let pend = 0, conf = 0, ganhos = 0;
+                
+                if (!snapshot.exists()) {
+                    div.innerHTML = '<p>Nenhuma marcação.</p>';
+                    return;
+                }
+
+                snapshot.forEach((child) => {
+                    const m = child.val();
+                    const id = child.key;
+                    
+                    if (m.status === 'pendente') pend++;
+                    if (m.status === 'confirmada') { conf++; ganhos += parseInt(m.total || 0); }
+
+                    div.innerHTML += `
+                        <div class="item">
+                            <p><strong>Cliente:</strong> ${m.cliente} (${m.telefone})</p>
+                            <p><strong>Endereço:</strong> ${m.endereco || 'Não informado'}</p>
+                            <p><strong>Serviço:</strong> ${m.servico}</p>
+                            <p><strong>Prof:</strong> ${m.profissional}</p>
+                            <p><strong>Data:</strong> ${m.data} às ${m.hora}</p>
+                            <p><strong>Total:</strong> ${m.total} Kz | <strong>Estado:</strong> ${m.status}</p>
+                            
+                            ${m.status === 'pendente' ? `<button class="btn btn-verde" onclick="mudarStatus('${id}', 'confirmada')">✅ Confirmar</button>` : ''}
+                            ${m.status === 'pendente' ? `<button class="btn btn-vermelho" onclick="mudarStatus('${id}', 'cancelada')">❌ Cancelar</button>` : ''}
+                            
+                            <button class="btn btn-cinza" onclick="apagarMarcacao('${id}')">🗑️ Apagar Registo</button>
+                        </div>
+                    `;
+                });
+                
+                document.getElementById('num-pendentes').innerText = pend;
+                document.getElementById('num-confirmadas').innerText = conf;
+                document.getElementById('num-ganhos').innerText = ganhos + " Kz";
+            });
+        }
+
+        window.mudarStatus = function(id, status) {
+            update(ref(db, 'marcacoes/' + id), { status: status });
+        };
+
+        window.apagarMarcacao = function(id) {
+            if (confirm("⚠️ Tem certeza que deseja APAGAR esta marcação? Esta ação não pode ser desfeita.")) {
+                remove(ref(db, 'marcacoes/' + id)).then(() => {
+                    alert("🗑️ Marcação apagada com sucesso!");
+                }).catch((error) => {
+                    alert("Erro ao apagar: " + error.message);
+                });
+            }
+        };
+
+        function carregarServicos() {
+            const div = document.getElementById('lista-servicos');
+            onValue(ref(db, 'servicos'), (snapshot) => {
+                div.innerHTML = '';
+                snapshot.forEach((child) => {
+                    const s = child.val();
+                    const id = child.key;
+                    div.innerHTML += `
+                        <div class="item">
+                            <p><strong>${s.nome}</strong></p>
+                            <input type="number" id="preco-${id}" value="${s.preco}" placeholder="Preço">
+                            <button class="btn btn-verde" onclick="salvarPreco('${id}')">Salvar Preço</button>
+                        </div>
+                    `;
+                });
+            });
+        }
+
+        window.salvarPreco = function(id) {
+            const novoPreco = parseInt(document.getElementById('preco-' + id).value);
+            update(ref(db, 'servicos/' + id), { preco: novoPreco }).then(() => alert("Preço atualizado!"));
+        };
+
+        function carregarEquipe() {
+            const div = document.getElementById('lista-equipe');
+            onValue(ref(db, 'profissionais'), (snapshot) => {
+                div.innerHTML = '';
+                snapshot.forEach((child) => {
+                    const p = child.val();
+                    const id = child.key;
+                    div.innerHTML += `
+                        <div class="item">
+                            <p><strong>${p.nome}</strong> ${p.ativo ? '✅' : '❌'}</p>
+                            <button class="btn btn-vermelho" onclick="apagarProf('${id}')">Apagar</button>
+                        </div>
+                    `;
+                });
+            });
+        }
+
+        window.adicionarProf = function() {
+            const nome = document.getElementById('novo-prof').value;
+            if (!nome) return alert("Digite o nome!");
+            set(push(ref(db, 'profissionais')), { nome: nome, ativo: true }).then(() => {
+                alert("Adicionado!");
+                document.getElementById('novo-prof').value = '';
+            });
+        };
+
+        window.apagarProf = function(id) {
+            if (confirm("Apagar profissional?")) {
+                remove(ref(db, 'profissionais/' + id));
+            }
+        };
+    </script>
+</body>
+          </html>
