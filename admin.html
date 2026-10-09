@@ -280,10 +280,23 @@ function carregarAcessos() {
 // ---------- Ações (uma única delegação de eventos, sem onclick inline) ----------
 const falha = e => alert('Erro: ' + (e.code === 'PERMISSION_DENIED' ? 'sem permissão.' : e.message));
 
+// Liberta o horário reservado (ocupados/...) de uma marcação
+async function libertarSlot(id) {
+  const slot = (await get(ref(db, 'marcacoes/' + id + '/slot'))).val();
+  if (typeof slot === 'string' && slot.startsWith('ocupados/')) await remove(ref(db, slot));
+}
+
 const ACOES = {
   sair: () => signOut(auth),
-  status: (id, el) => update(ref(db, 'marcacoes/' + id), { status: el.dataset.valor }),
-  'apagar-marc': id => confirm('⚠️ Apagar esta marcação? Esta ação não pode ser desfeita.') && remove(ref(db, 'marcacoes/' + id)),
+  status: async (id, el) => {
+    await update(ref(db, 'marcacoes/' + id), { status: el.dataset.valor });
+    if (el.dataset.valor === 'cancelada') await libertarSlot(id);
+  },
+  'apagar-marc': async id => {
+    if (!confirm('⚠️ Apagar esta marcação? Esta ação não pode ser desfeita.')) return;
+    await libertarSlot(id);
+    await remove(ref(db, 'marcacoes/' + id));
+  },
   preco: id => {
     const v = parseInt($('preco-' + id).value, 10);
     if (!Number.isInteger(v) || v < 0 || v > 10000000) return alert('Preço inválido.');
