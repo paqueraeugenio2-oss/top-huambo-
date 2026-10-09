@@ -1,173 +1,305 @@
 <!DOCTYPE html>
 <html lang="pt">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TOP HUAMBO</title>
-    <style>
-        body { font-family: Arial, sans-serif; background: #0a0a0a; color: white; margin: 0; padding: 0; }
-        .topo { background: linear-gradient(135deg, #1a1a1a 0%, #000 100%); padding: 20px; text-align: center; border-bottom: 2px solid #d4af37; }
-        .topo img { max-width: 180px; height: auto; margin-bottom: 5px; }
-        .topo h1 { margin: 0; color: #d4af37; font-size: 24px; letter-spacing: 3px; }
-        .topo p { margin: 5px 0 0; color: #999; font-size: 12px; letter-spacing: 2px; }
-        .conteudo { padding: 15px; }
-        .card { background: #141414; padding: 18px; border-radius: 12px; margin-bottom: 15px; border: 1px solid #333; border-left: 4px solid #d4af37; }
-        .card h2 { color: #d4af37; margin-top: 0; }
-        .btn { background: linear-gradient(135deg, #d4af37, #b8941f); color: #000; padding: 15px; border: none; border-radius: 8px; width: 100%; font-size: 16px; font-weight: bold; cursor: pointer; margin-top: 15px; letter-spacing: 1px; }
-        .btn:active { transform: scale(0.98); }
-        select, input { width: 100%; padding: 12px; margin: 5px 0; border: 1px solid #444; background: #1f1f1f; color: white; border-radius: 8px; box-sizing: border-box; font-size: 15px; }
-        select:focus, input:focus { outline: none; border-color: #d4af37; }
-        label { display: block; margin-top: 12px; color: #d4af37; font-weight: bold; font-size: 14px; }
-        .total-box { background: #1f1f1f; padding: 15px; border-radius: 8px; margin-top: 15px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #d4af37; }
-        .total-box span:first-child { color: #999; }
-        .total-box span:last-child { color: #d4af37; font-weight: bold; font-size: 18px; }
-        .escondido { display: none; }
-        .sucesso { text-align: center; border-left: 4px solid #d4af37 !important; }
-        .sucesso h2 { color: #d4af37; font-size: 28px; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="TOP HUAMBO - A tua beleza, onde estiveres. Marca o teu serviço online.">
+<title>TOP HUAMBO</title>
+<style>
+body{font-family:Arial,sans-serif;background:#0a0a0a;color:#fff;margin:0}
+.topo{background:linear-gradient(135deg,#1a1a1a,#000);padding:20px;text-align:center;border-bottom:2px solid #d4af37}
+.topo img{max-width:180px;height:auto;margin-bottom:5px}
+.topo h1{margin:0;color:#d4af37;font-size:24px;letter-spacing:3px}
+.topo p{margin:5px 0 0;color:#999;font-size:12px;letter-spacing:2px}
+.conteudo{padding:15px;max-width:520px;margin:0 auto}
+.card{background:#141414;padding:18px;border-radius:12px;margin-bottom:15px;border:1px solid #333;border-left:4px solid #d4af37}
+.card h2{color:#d4af37;margin-top:0}
+.btn{background:linear-gradient(135deg,#d4af37,#b8941f);color:#000;padding:15px;border:none;border-radius:8px;width:100%;font-size:16px;font-weight:bold;cursor:pointer;margin-top:15px;letter-spacing:1px}
+.btn:active{transform:scale(.98)}
+.btn:disabled{opacity:.5;cursor:wait}
+.btn-cinza{background:#444;color:#fff;font-size:13px;padding:10px;margin-top:5px}
+.link{background:none;border:none;color:#d4af37;cursor:pointer;width:100%;margin-top:12px;font-size:14px;text-decoration:underline}
+select,input{width:100%;padding:12px;margin:5px 0;border:1px solid #444;background:#1f1f1f;color:#fff;border-radius:8px;box-sizing:border-box;font-size:15px}
+select:focus,input:focus{outline:none;border-color:#d4af37}
+label{display:block;margin-top:12px;color:#d4af37;font-weight:bold;font-size:14px}
+.total-box{background:#1f1f1f;padding:15px;border-radius:8px;margin-top:15px;display:flex;justify-content:space-between;align-items:center;border:1px solid #d4af37}
+.total-box span:first-child{color:#999}
+.total-box span:last-child{color:#d4af37;font-weight:bold;font-size:18px}
+.escondido{display:none}
+.sucesso{text-align:center}
+.sucesso h2{font-size:28px}
+.msg{font-size:14px;text-align:center;min-height:18px;margin:8px 0}
+.msg.erro{color:#e74c3c}.msg.ok{color:#2ecc71}
+.muted{color:#999;font-size:14px}
+.barra{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;font-size:14px;color:#ccc}
+.barra button{width:auto;padding:8px 14px;margin:0}
+.tabs{display:flex;gap:5px;margin-bottom:15px}
+.tab-btn{flex:1;padding:12px 4px;border:none;border-radius:8px;background:#1f1f1f;color:#999;font-weight:bold;cursor:pointer;font-size:13px}
+.tab-btn.active{background:linear-gradient(135deg,#d4af37,#b8941f);color:#000}
+.item{background:#1f1f1f;padding:12px;border-radius:8px;margin-bottom:10px;border-left:4px solid #d4af37}
+.item p{margin:4px 0;font-size:14px;color:#ddd;word-break:break-word}
+.item strong{color:#d4af37}
+.st-pendente{color:#f1c40f}.st-confirmada{color:#2ecc71}.st-cancelada{color:#e74c3c}
+</style>
 </head>
 <body>
 
-    <div class="topo">
-        <img src="logo.jpg" alt="TOP HUAMBO">
-        <h1>TOP HUAMBO</h1>
-        <p>A TUA BELEZA, ONDE ESTIVERES</p>
+<div class="topo">
+  <img src="logo.jpg" alt="TOP HUAMBO">
+  <h1>TOP HUAMBO</h1>
+  <p>A TUA BELEZA, ONDE ESTIVERES</p>
+</div>
+
+<div class="conteudo">
+
+  <!-- LOGIN / CRIAR CONTA -->
+  <div id="tela-auth" class="card">
+    <h2 id="titulo-auth">Entrar</h2>
+    <input type="text" id="reg-nome" class="escondido" placeholder="Nome completo" maxlength="80" autocomplete="name">
+    <input type="tel" id="reg-tel" class="escondido" placeholder="Telefone (ex: 955 000 000)" maxlength="20" autocomplete="tel">
+    <input type="email" id="email" placeholder="Email" autocomplete="username">
+    <input type="password" id="senha" placeholder="Senha" autocomplete="current-password">
+    <input type="password" id="senha2" class="escondido" placeholder="Repita a senha" autocomplete="new-password">
+    <div id="msg-auth" class="msg"></div>
+    <button class="btn" id="btn-auth">ENTRAR</button>
+    <button class="link" id="btn-trocar">Ainda não tenho conta</button>
+    <button class="link" id="btn-reset">Esqueci a senha</button>
+  </div>
+
+  <!-- ÁREA DO CLIENTE -->
+  <div id="area" class="escondido">
+    <div class="barra">
+      <span>Olá, <strong id="nome-user"></strong></span>
+      <button class="btn btn-cinza" id="btn-sair">SAIR</button>
+    </div>
+    <div class="tabs">
+      <button class="tab-btn active" data-aba="nova">📅 Nova marcação</button>
+      <button class="tab-btn" data-aba="minhas">📋 Minhas marcações</button>
     </div>
 
-    <div class="conteudo">
-        <div id="formulario" class="card">
-            <h2>Fazer Marcação</h2>
-            
-            <label>Escolha o Serviço:</label>
-            <select id="servico"><option value="">Carregando...</option></select>
-
-            <label>Escolha o Profissional:</label>
-            <select id="profissional"><option value="">Carregando...</option></select>
-
-            <label>Data:</label>
-            <input type="date" id="data">
-
-            <label>Hora:</label>
-            <input type="time" id="hora">
-
-            <label>Seu Nome:</label>
-            <input type="text" id="nome" placeholder="Nome completo">
-
-            <label>Telefone:</label>
-            <input type="tel" id="telefone" placeholder="955 000 000">
-
-            <label>Rua / Bairro (Endereço):</label>
-            <input type="text" id="endereco" placeholder="Ex: Bairro São João, Rua 4">
-
-            <div class="total-box">
-                <span>Total:</span>
-                <span id="total">0 Kz</span>
-            </div>
-
-            <button class="btn" onclick="confirmar()">CONFIRMAR MARCAÇÃO</button>
-        </div>
-
-        <div id="sucesso" class="card sucesso escondido">
-            <h2>✅ SUCESSO!</h2>
-            <p style="color:#ccc;">A sua marcação foi enviada. Aguarde a confirmação.</p>
-            <button class="btn" onclick="location.reload()">FAZER OUTRA MARCAÇÃO</button>
-        </div>
+    <div id="aba-nova" class="aba">
+      <div id="formulario" class="card">
+        <h2>Fazer Marcação</h2>
+        <label for="servico">Escolha o Serviço:</label>
+        <select id="servico"><option value="">Carregando...</option></select>
+        <label for="profissional">Escolha o Profissional:</label>
+        <select id="profissional"><option value="">Carregando...</option></select>
+        <label for="data">Data:</label>
+        <input type="date" id="data">
+        <label for="hora">Hora:</label>
+        <input type="time" id="hora" step="1800">
+        <label for="nome">Seu Nome:</label>
+        <input type="text" id="nome" placeholder="Nome completo" maxlength="80">
+        <label for="telefone">Telefone:</label>
+        <input type="tel" id="telefone" placeholder="955 000 000" maxlength="20">
+        <label for="endereco">Rua / Bairro (Endereço):</label>
+        <input type="text" id="endereco" placeholder="Ex: Bairro São João, Rua 4" maxlength="150">
+        <div class="total-box"><span>Total (inclui taxa):</span><span id="total">0 Kz</span></div>
+        <div id="msg-form" class="msg erro"></div>
+        <button class="btn" id="btn-confirmar">CONFIRMAR MARCAÇÃO</button>
+      </div>
+      <div id="sucesso" class="card sucesso escondido">
+        <h2>✅ SUCESSO!</h2>
+        <p style="color:#ccc">A sua marcação foi enviada. Aguarde a confirmação.</p>
+        <button class="btn" id="btn-outra">FAZER OUTRA MARCAÇÃO</button>
+      </div>
     </div>
 
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getDatabase, ref, onValue, push, set } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+    <div id="aba-minhas" class="aba escondido">
+      <div class="card"><h2>Minhas Marcações</h2><div id="lista-minhas">Carregando...</div></div>
+    </div>
+  </div>
+</div>
 
-        const firebaseConfig = {
-            apiKey: "AIzaSyBfTQkL3syaM-KJZ3NK4YiSfpWFbkdkZWI",
-            authDomain: "top-huambo.firebaseapp.com",
-            databaseURL: "https://top-huambo-default-rtdb.firebaseio.com",
-            projectId: "top-huambo",
-            storageBucket: "top-huambo.firebasestorage.app",
-            messagingSenderId: "1082034373007",
-            appId: "1:1082034373007:web:ede1bc60ee781589348bfa"
-        };
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+import { getDatabase, ref, onValue, push, set, get, update, query, orderByChild, equalTo } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, sendPasswordResetEmail, sendEmailVerification, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
-        const app = initializeApp(firebaseConfig);
-        const db = getDatabase(app);
-        let taxa = 400;
+const app = initializeApp({
+  apiKey: "AIzaSyBfTQkL3syaM-KJZ3NK4YiSfpWFbkdkZWI",
+  authDomain: "top-huambo.firebaseapp.com",
+  databaseURL: "https://top-huambo-default-rtdb.firebaseio.com",
+  projectId: "top-huambo",
+  storageBucket: "top-huambo.firebasestorage.app",
+  messagingSenderId: "1082034373007",
+  appId: "1:1082034373007:web:ede1bc60ee781589348bfa"
+});
+const db = getDatabase(app), auth = getAuth(app);
 
-        onValue(ref(db, 'configuracoes/taxa_fixa'), (snap) => {
-            if (snap.exists()) taxa = snap.val();
-        });
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const TEL = /^\+?[0-9 ]{9,15}$/;
 
-        const selServico = document.getElementById('servico');
-        onValue(ref(db, 'servicos'), (snap) => {
-            selServico.innerHTML = '<option value="">Escolha um serviço</option>';
-            snap.forEach((child) => {
-                const s = child.val();
-                if (s.ativo) {
-                    selServico.innerHTML += `<option value="${s.nome}" data-preco="${s.preco}">${s.nome} - ${s.preco} Kz</option>`;
-                }
-            });
-        });
+let modoCriar = false, aCriar = false, unsubs = [], taxa = 400, servicos = {}, profs = {}, perfil = {};
 
-        const selProf = document.getElementById('profissional');
-        onValue(ref(db, 'profissionais'), (snap) => {
-            selProf.innerHTML = '<option value="">Escolha um profissional</option>';
-            snap.forEach((child) => {
-                const p = child.val();
-                if (p.ativo) {
-                    selProf.innerHTML += `<option value="${p.nome}">${p.nome}</option>`;
-                }
-            });
-        });
+const ERROS = {
+  'auth/invalid-credential': 'Email ou senha incorretos.',
+  'auth/wrong-password': 'Email ou senha incorretos.',
+  'auth/user-not-found': 'Email ou senha incorretos.',
+  'auth/invalid-email': 'Email inválido.',
+  'auth/email-already-in-use': 'Este email já tem conta.',
+  'auth/weak-password': 'A senha deve ter pelo menos 8 caracteres.',
+  'auth/too-many-requests': 'Muitas tentativas. Tenta mais tarde.',
+  'auth/network-request-failed': 'Sem ligação à internet.'
+};
+function msg(t, tipo = 'erro') { const m = $('msg-auth'); m.textContent = t; m.className = 'msg ' + tipo; }
 
-        selServico.addEventListener('change', () => {
-            const preco = selServico.options[selServico.selectedIndex]?.dataset.preco || 0;
-            document.getElementById('total').innerText = (parseInt(preco) + taxa) + " Kz";
-        });
+// ---------- Login / criar conta ----------
+function trocarModo() {
+  modoCriar = !modoCriar;
+  $('titulo-auth').textContent = modoCriar ? 'Criar Conta' : 'Entrar';
+  $('btn-auth').textContent = modoCriar ? 'CRIAR CONTA' : 'ENTRAR';
+  $('btn-trocar').textContent = modoCriar ? 'Já tenho conta' : 'Ainda não tenho conta';
+  ['reg-nome', 'reg-tel', 'senha2'].forEach(i => $(i).classList.toggle('escondido', !modoCriar));
+  $('btn-reset').classList.toggle('escondido', modoCriar);
+  $('senha').autocomplete = modoCriar ? 'new-password' : 'current-password';
+  msg('');
+}
 
-        window.confirmar = function() {
-            const servico = selServico.value;
-            const profissional = selProf.value;
-            const data = document.getElementById('data').value;
-            const hora = document.getElementById('hora').value;
-            const nome = document.getElementById('nome').value;
-            const telefone = document.getElementById('telefone').value;
-            const endereco = document.getElementById('endereco').value;
-            const total = parseInt(document.getElementById('total').innerText.replace(" Kz", ""));
+async function submeter() {
+  const email = $('email').value.trim(), senha = $('senha').value;
+  if (!email || !senha) return msg('Preenche o email e a senha.');
+  const btn = $('btn-auth'); btn.disabled = true; msg('');
+  try {
+    if (modoCriar) {
+      const nome = $('reg-nome').value.trim(), tel = $('reg-tel').value.trim();
+      if (nome.length < 3) return msg('Escreve o teu nome completo.');
+      if (!TEL.test(tel)) return msg('Telefone inválido.');
+      if (senha.length < 8) return msg('A senha deve ter pelo menos 8 caracteres.');
+      if (senha !== $('senha2').value) return msg('As senhas não coincidem.');
+      aCriar = true;
+      const cred = await createUserWithEmailAndPassword(auth, email, senha);
+      await set(ref(db, 'clientes/' + cred.user.uid), { nome, telefone: tel });
+      sendEmailVerification(cred.user).catch(() => {});
+      aCriar = false;
+      entrar(cred.user);
+    } else {
+      await signInWithEmailAndPassword(auth, email, senha);
+    }
+  } catch (e) { aCriar = false; msg(ERROS[e.code] || 'Ocorreu um erro. Tenta novamente.'); }
+  finally { btn.disabled = false; $('senha').value = ''; $('senha2').value = ''; }
+}
 
-            if (!servico || !profissional || !data || !hora || !nome || !telefone || !endereco) {
-                alert("Por favor, preencha todos os campos!");
-                return;
-            }
+async function recuperarSenha() {
+  const email = $('email').value.trim();
+  if (!email) return msg('Escreve o teu email primeiro.');
+  try { await sendPasswordResetEmail(auth, email); } catch (e) {}
+  msg('Se o email existir, enviámos um link de recuperação.', 'ok');
+}
 
-            onValue(ref(db, 'marcacoes'), (snap) => {
-                let ocupado = false;
-                snap.forEach((child) => {
-                    const m = child.val();
-                    if (m.profissional === profissional && m.data === data && m.hora === hora && m.status !== 'cancelada') {
-                        ocupado = true;
-                    }
-                });
+// ---------- Sessão ----------
+async function entrar(user) {
+  try { perfil = (await get(ref(db, 'clientes/' + user.uid))).val() || {}; } catch (e) { perfil = {}; }
+  $('nome-user').textContent = perfil.nome || user.email;
+  $('nome').value = perfil.nome || '';
+  $('telefone').value = perfil.telefone || '';
+  $('tela-auth').classList.add('escondido');
+  $('area').classList.remove('escondido');
+  carregarDados(user);
+}
 
-                if (ocupado) {
-                    alert("❌ Este horário já está ocupado para este profissional. Escolha outro.");
-                    return;
-                }
+onAuthStateChanged(auth, user => {
+  if (aCriar) return;
+  unsubs.forEach(u => u()); unsubs = [];
+  if (user) entrar(user);
+  else { $('area').classList.add('escondido'); $('tela-auth').classList.remove('escondido'); }
+});
 
-                set(push(ref(db, 'marcacoes')), {
-                    cliente: nome,
-                    telefone: telefone,
-                    endereco: endereco,
-                    servico: servico,
-                    profissional: profissional,
-                    data: data,
-                    hora: hora,
-                    total: total,
-                    status: "pendente"
-                }).then(() => {
-                    document.getElementById('formulario').classList.add('escondido');
-                    document.getElementById('sucesso').classList.remove('escondido');
-                }).catch((err) => alert("Erro: " + err.message));
-            }, { onlyOnce: true });
-        };
-    </script>
+// ---------- Dados ----------
+function carregarDados(user) {
+  const selS = $('servico'), selP = $('profissional');
+  unsubs.push(onValue(ref(db, 'configuracoes/taxa_fixa'), s => { if (s.exists()) { taxa = Number(s.val()) || 0; atualizarTotal(); } }));
+
+  unsubs.push(onValue(ref(db, 'servicos'), snap => {
+    servicos = {}; selS.length = 0; selS.add(new Option('Escolha um serviço', ''));
+    snap.forEach(c => { const s = c.val(); if (s.ativo) { servicos[c.key] = s; selS.add(new Option(`${s.nome} - ${s.preco} Kz`, c.key)); } });
+    atualizarTotal();
+  }));
+
+  unsubs.push(onValue(ref(db, 'profissionais'), snap => {
+    profs = {}; selP.length = 0; selP.add(new Option('Escolha um profissional', ''));
+    snap.forEach(c => { const p = c.val(); if (p.ativo) { profs[c.key] = p; selP.add(new Option(p.nome, c.key)); } });
+  }));
+
+  const q = query(ref(db, 'marcacoes'), orderByChild('uid'), equalTo(user.uid));
+  unsubs.push(onValue(q, snap => {
+    const lista = [];
+    snap.forEach(c => { lista.push(c.val()); });
+    lista.sort((a, b) => (b.data + b.hora).localeCompare(a.data + a.hora));
+    $('lista-minhas').innerHTML = lista.length ? lista.map(m => `
+      <div class="item">
+        <p><strong>Serviço:</strong> ${esc(m.servico)}</p>
+        <p><strong>Profissional:</strong> ${esc(m.profissional)}</p>
+        <p><strong>Data:</strong> ${esc(m.data)} às ${esc(m.hora)}</p>
+        <p><strong>Total:</strong> ${esc(m.total)} Kz</p>
+        <p><strong>Estado:</strong> <span class="st-${esc(m.status)}">${esc(m.status)}</span></p>
+      </div>`).join('') : '<p class="muted">Ainda não fez nenhuma marcação.</p>';
+  }, () => { $('lista-minhas').innerHTML = '<p class="muted">Não foi possível carregar.</p>'; }));
+}
+
+function atualizarTotal() {
+  const s = servicos[$('servico').value];
+  $('total').textContent = s ? (Number(s.preco) + taxa) + ' Kz' : '0 Kz';
+}
+
+// ---------- Marcação ----------
+async function confirmar() {
+  const user = auth.currentUser; if (!user) return;
+  const erro = t => { $('msg-form').textContent = t; };
+  erro('');
+  const servicoId = $('servico').value, profId = $('profissional').value;
+  const data = $('data').value, hora = $('hora').value;
+  const nome = $('nome').value.trim(), telefone = $('telefone').value.trim(), endereco = $('endereco').value.trim();
+
+  if (!servicos[servicoId] || !profs[profId] || !data || !hora || !nome || !telefone || !endereco) return erro('Por favor, preencha todos os campos.');
+  if (!TEL.test(telefone)) return erro('Telefone inválido.');
+  if (new Date(`${data}T${hora}`) < new Date()) return erro('Escolha uma data e hora futuras.');
+
+  const btn = $('btn-confirmar'); btn.disabled = true;
+  try {
+    const slot = `ocupados/${profId}/${data}/${hora.replace(':', '')}`;
+    if ((await get(ref(db, slot))).exists()) return erro('❌ Este horário já está ocupado para este profissional. Escolha outro.');
+
+    const id = push(ref(db, 'marcacoes')).key;
+    // Gravação atómica: a marcação e a reserva do horário entram juntas ou nenhuma entra
+    await update(ref(db), {
+      ['marcacoes/' + id]: {
+        uid: user.uid, cliente: nome, telefone, endereco,
+        servicoId, servico: servicos[servicoId].nome,
+        profissionalId: profId, profissional: profs[profId].nome,
+        data, hora, total: Number(servicos[servicoId].preco) + taxa,
+        status: 'pendente', slot, criado: Date.now()
+      },
+      [slot]: id
+    });
+    $('formulario').classList.add('escondido');
+    $('sucesso').classList.remove('escondido');
+  } catch (e) {
+    erro(e.code === 'PERMISSION_DENIED' ? 'Não foi possível reservar. O horário pode ter sido ocupado entretanto.' : 'Erro ao enviar. Tenta novamente.');
+  } finally { btn.disabled = false; }
+}
+
+// ---------- Eventos ----------
+$('btn-auth').addEventListener('click', submeter);
+$('btn-trocar').addEventListener('click', trocarModo);
+$('btn-reset').addEventListener('click', recuperarSenha);
+$('btn-sair').addEventListener('click', () => signOut(auth));
+$('btn-confirmar').addEventListener('click', confirmar);
+$('btn-outra').addEventListener('click', () => {
+  ['servico', 'profissional', 'data', 'hora', 'endereco'].forEach(i => $(i).value = '');
+  atualizarTotal();
+  $('sucesso').classList.add('escondido'); $('formulario').classList.remove('escondido');
+});
+$('servico').addEventListener('change', atualizarTotal);
+['email', 'senha', 'senha2'].forEach(i => $(i).addEventListener('keydown', e => e.key === 'Enter' && submeter()));
+document.querySelectorAll('[data-aba]').forEach(b => b.addEventListener('click', () => {
+  document.querySelectorAll('.tab-btn').forEach(x => x.classList.remove('active'));
+  b.classList.add('active');
+  document.querySelectorAll('.aba').forEach(d => d.classList.add('escondido'));
+  $('aba-' + b.dataset.aba).classList.remove('escondido');
+}));
+$('data').min = new Date().toLocaleDateString('sv-SE');
+</script>
 </body>
 </html>
