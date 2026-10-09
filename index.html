@@ -39,6 +39,8 @@ label{display:block;margin-top:12px;color:#d4af37;font-weight:bold;font-size:14p
 .item{background:#1f1f1f;padding:12px;border-radius:8px;margin-bottom:10px;border-left:4px solid #d4af37}
 .item p{margin:4px 0;font-size:14px;color:#ddd;word-break:break-word}
 .item strong{color:#d4af37}
+.aviso{background:#1f1f1f;border:1px solid #d4af37;border-radius:8px;padding:12px;margin-bottom:10px;display:flex;justify-content:space-between;gap:10px;font-size:14px;line-height:1.4}
+.aviso button{background:none;border:none;color:#d4af37;font-size:18px;cursor:pointer;width:auto;margin:0;padding:0}
 .st-pendente{color:#f1c40f}.st-confirmada{color:#2ecc71}.st-cancelada{color:#e74c3c}
 </style>
 </head>
@@ -72,6 +74,8 @@ label{display:block;margin-top:12px;color:#d4af37;font-weight:bold;font-size:14p
       <span>Olá, <strong id="nome-user"></strong></span>
       <button class="btn btn-cinza" id="btn-sair">SAIR</button>
     </div>
+    <button class="link escondido" id="btn-notif">🔔 Ativar notificações neste dispositivo</button>
+    <div id="avisos"></div>
     <div class="tabs">
       <button class="tab-btn active" data-aba="nova">📅 Nova marcação</button>
       <button class="tab-btn" data-aba="minhas">📋 Minhas marcações</button>
@@ -196,6 +200,7 @@ async function entrar(user) {
   $('telefone').value = perfil.telefone || '';
   $('tela-auth').classList.add('escondido');
   $('area').classList.remove('escondido');
+  atualizarBtnNotif();
   carregarDados(user);
 }
 
@@ -224,6 +229,7 @@ function carregarDados(user) {
 
   const q = query(ref(db, 'marcacoes'), orderByChild('uid'), equalTo(user.uid));
   unsubs.push(onValue(q, snap => {
+    notificarMudancas(snap);
     const lista = [];
     snap.forEach(c => { lista.push(c.val()); });
     lista.sort((a, b) => (b.data + b.hora).localeCompare(a.data + a.hora));
@@ -241,6 +247,43 @@ function carregarDados(user) {
 function atualizarTotal() {
   const s = servicos[$('servico').value];
   $('total').textContent = s ? (Number(s.preco) + taxa) + ' Kz' : '0 Kz';
+}
+
+// ---------- Notificações ----------
+const chaveVistos = () => 'vistos_' + auth.currentUser.uid;
+function lerVistos() { try { return JSON.parse(localStorage.getItem(chaveVistos())); } catch (e) { return null; } }
+function guardarVistos(v) { try { localStorage.setItem(chaveVistos(), JSON.stringify(v)); } catch (e) {} }
+
+function atualizarBtnNotif() {
+  $('btn-notif').classList.toggle('escondido', !('Notification' in window) || Notification.permission !== 'default');
+}
+
+// Compara o estado atual com o último estado visto neste dispositivo
+function notificarMudancas(snap) {
+  const estados = {}, novas = [];
+  snap.forEach(c => { estados[c.key] = c.val(); });
+  const vistos = lerVistos(); // null na primeira vez: guarda sem avisar
+  if (vistos) {
+    for (const [id, m] of Object.entries(estados)) {
+      if ((m.status === 'confirmada' || m.status === 'cancelada') && vistos[id] !== m.status) novas.push(m);
+    }
+  }
+  guardarVistos(Object.fromEntries(Object.entries(estados).map(([id, m]) => [id, m.status])));
+  novas.forEach(avisar);
+}
+
+function avisar(m) {
+  const ok = m.status === 'confirmada';
+  const texto = `${ok ? '✅ A sua marcação foi CONFIRMADA' : '❌ A sua marcação foi cancelada'}: ${m.servico}, ${m.data} às ${m.hora}.`;
+  const div = document.createElement('div');
+  div.className = 'aviso';
+  const span = document.createElement('span'); span.textContent = texto;
+  const x = document.createElement('button'); x.textContent = '×'; x.setAttribute('aria-label', 'Fechar');
+  x.onclick = () => div.remove();
+  div.append(span, x);
+  $('avisos').prepend(div);
+  try { navigator.vibrate && navigator.vibrate(200); } catch (e) {}
+  try { if ('Notification' in window && Notification.permission === 'granted') new Notification('TOP HUAMBO', { body: texto, icon: 'logo.jpg' }); } catch (e) {}
 }
 
 // ---------- Marcação ----------
@@ -299,6 +342,10 @@ document.querySelectorAll('[data-aba]').forEach(b => b.addEventListener('click',
   document.querySelectorAll('.aba').forEach(d => d.classList.add('escondido'));
   $('aba-' + b.dataset.aba).classList.remove('escondido');
 }));
+$('btn-notif').addEventListener('click', async () => {
+  try { await Notification.requestPermission(); } catch (e) {}
+  atualizarBtnNotif();
+});
 $('data').min = new Date().toLocaleDateString('sv-SE');
 </script>
 </body>
